@@ -1,42 +1,58 @@
+import 'package:draggable_grid/blocs/image_grid/image_grid_bloc.dart';
 import 'package:draggable_grid/model/image_model.dart';
+import 'package:draggable_grid/widgets/custom_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class TileWrapper extends StatefulWidget {
+class TileWrapper extends StatelessWidget {
   final int index;
 
   const TileWrapper({super.key, required this.index});
 
   @override
-  State<TileWrapper> createState() => _TileWrapperState();
-}
-
-class _TileWrapperState extends State<TileWrapper> {
-  @override
   Widget build(BuildContext context) {
-    return LongPressDraggable<int>(
-      data: widget.index,
-      feedback: Opacity(
-        opacity: 0.8,
-        child: _buildTile(tile, isDragging: true),
-      ),
-      childWhenDragging: Opacity(opacity: 0.3, child: _buildTile(tile)),
-      onDragStarted: () => setState(() => isDragging = true),
-      onDragEnd: (_) => setState(() => isDragging = false),
-      child: _buildTile(tile),
-    );
-  }
+    return BlocSelector<ImageGridBloc, ImageGridState, ImageTile?>(
+      selector: (state) {
+        if (state is ImageGridLoaded) {
+          return state.tiles[index];
+        }
+        return null;
+      },
+      builder: (context, tile) {
+        if (tile == null) return const SizedBox();
 
-  Widget _buildTile(ImageTile tile, {bool isDragging = false}) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black12),
-        borderRadius: BorderRadius.circular(8),
-        color: Colors.grey[200],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.asset(tile.imagePath, fit: BoxFit.cover),
-      ),
+        final tileSize = MediaQuery.of(context).size.width / 3 - 12;
+
+        return DragTarget<int>(
+          onWillAcceptWithDetails: (details) {
+            return details.data != index;
+          },
+          onAcceptWithDetails: (details) {
+            final fromIndex = details.data;
+            context.read<ImageGridBloc>().add(
+              ReorderImageEvent(fromIndex, index),
+            );
+          },
+          builder: (context, candidateData, rejectedData) {
+            return RepaintBoundary(
+              child: LongPressDraggable<int>(
+                dragAnchorStrategy: childDragAnchorStrategy,
+                data: index,
+                feedback: ImageTileWidget(tile: tile, size: tileSize),
+                childWhenDragging: Container(
+                  width: tileSize,
+                  height: tileSize,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: ImageTileWidget(tile: tile, size: tileSize),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
