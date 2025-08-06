@@ -37,9 +37,37 @@ lib/
 │
 └── main.dart                          # App entry point
 
-## Getting Started
+  ## Getting Started
 
-**1.Clone the repository**
+  **1.Clone the repository**
+    ```bash
+    git clone https://github.com/Ameen-Kareem/draggable_grid.git
+    cd draggable_grid
 
-    https://github.com/Ameen-Kareem/draggable_grid.git
-    cd draggable_image_grid
+  **2.Install Dependencies**
+
+    flutter pub get
+
+  **3.Add assets**
+
+    Make sure that the asset images are places inside the assets/images folder
+    declare the assets in the pubspec.yaml file
+    
+    flutter:
+      assets:
+        -  assets/images/
+
+  **4.Run the app**
+ 
+    flutter run
+
+**Note:**  Ensure you have Flutter SDK (>=3.10.0) installed. You can check it with:
+     ```bash
+      flutter --version
+  
+## 🛠 Technologies Used
+
+- **Flutter** - UI toolkit
+- **BLoC Pattern** (flutter_bloc) - State management
+- **Equatable** - Value comparison
+- **Dart** - Programming language
